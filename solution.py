@@ -9,6 +9,7 @@ import pretrainedmodels
 from tensorboardX import SummaryWriter
 import adabound
 from PIL import ImageFile
+from multiprocessing import cpu_count
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 ImageFile.LOAD_TRUNCATED_IMAGES = True
@@ -17,13 +18,14 @@ ImageFile.LOAD_TRUNCATED_IMAGES = True
 SEED = 66
 torch.manual_seed(SEED)
 torch.cuda.manual_seed(SEED)
+num_cpu = cpu_count()
 # np.random.seed(SEED)
 
 
 class Solution:
     def __init__(self, model, criterion, optimizer, image_path, scheduler=None, epochs=100, batch_size=64,
                  show_interval=20, valid_interval=100, record_loss=True, image_size=224, thread_size=8,
-                 seed=66, ten_crops=False):
+                 seed=66, ten_crops=False, test_ratio=0.25):
         data_transforms = {
             'train': transforms.Compose([
                 # transforms.RandomResizedCrop(image_size),
@@ -73,7 +75,7 @@ class Solution:
             ])
 
         # data set
-        splitter = ImageFolderSplitter(image_path, 0.8, seed=seed)
+        splitter = ImageFolderSplitter(image_path, 1 - test_ratio, seed=seed)
         x_train, y_train = splitter.getTrainingDataset()
         train_dataset = DatasetFromFilename(x_train, y_train, transforms=data_transforms['train'])
         train_dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=thread_size)
@@ -258,7 +260,7 @@ S = Solution(model,
              scheduler=None,
              epochs=100,
              batch_size=8,
-             thread_size=8,
+             thread_size=num_cpu,
              show_interval=20,
              valid_interval=2000,
              seed=SEED,
