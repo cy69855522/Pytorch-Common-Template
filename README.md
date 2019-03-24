@@ -38,7 +38,7 @@ Solution(model, # the model need training 训练用的模型
 ImageFolderSplitter(path, # 所有图片文件夹
                     train_size=0.8, # 图片文件夹中用于训练集的比率
                     seed=66,
-                    drop_type=('txt', 'csv'), # skip file with these suffix 遍历图片目录时需要跳过我文件类型
+                    drop_type=('txt', 'csv'), # skip file with these suffix 遍历图片目录时需要跳过的文件类型
                     )
 ```
 ## References :blush:
